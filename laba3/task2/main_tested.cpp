@@ -9,33 +9,33 @@ int main(int argc, char const* argv[])
 {
     if (argc < 2)
     {
-        std::cout << "Введите название файла для проверки" << std::endl;
+        std::cout << "Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ С„Р°Р№Р»Р° РґР»СЏ РїСЂРѕРІРµСЂРєРё" << std::endl;
         return 1;
     }
 
-    std::ifstream file(argv[1]); // Открываем файл для чтения
+    std::ifstream file(argv[1]); // РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ
     if (!file.is_open())
     {
-        std::cerr << "Невозможно открыть файл." << std::endl;
+        std::cerr << "РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р»." << std::endl;
         return 1;
     }
 
     int all = 0;
     int accepted = 0;
     std::string line;
-    while (std::getline(file, line)) // Построчно считываем файл
+    while (std::getline(file, line)) // РџРѕСЃС‚СЂРѕС‡РЅРѕ СЃС‡РёС‚С‹РІР°РµРј С„Р°Р№Р»
     {
-        std::istringstream iss(line); // Создаем поток для текущей строки
-        std::vector<std::string> tokens;// Вектор для хранения токенов (слов) из строки
+        std::istringstream iss(line); // РЎРѕР·РґР°РµРј РїРѕС‚РѕРє РґР»СЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё
+        std::vector<std::string> tokens;// Р’РµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕРєРµРЅРѕРІ (СЃР»РѕРІ) РёР· СЃС‚СЂРѕРєРё
 
         std::string token;
-        while (iss >> token) // Разбиваем строку на токены
+        while (iss >> token) // Р Р°Р·Р±РёРІР°РµРј СЃС‚СЂРѕРєСѓ РЅР° С‚РѕРєРµРЅС‹
         {
             tokens.push_back(token);
         }
 
-        // Выводим полученные токены
-        if (tokens.size() >= 3) // Проверяем, что в строке есть минимум три токена
+        // Р’С‹РІРѕРґРёРј РїРѕР»СѓС‡РµРЅРЅС‹Рµ С‚РѕРєРµРЅС‹
+        if (tokens.size() >= 3) // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІ СЃС‚СЂРѕРєРµ РµСЃС‚СЊ РјРёРЅРёРјСѓРј С‚СЂРё С‚РѕРєРµРЅР°
         {
             double expected_result = std::stod(tokens.back());
             double actual_result = 0.0;
@@ -67,9 +67,9 @@ int main(int argc, char const* argv[])
         }
     }
 
-    std::cout << "Файл " << argv[1] << " acc = " << static_cast<double>(accepted) / static_cast<double>(all) << std::endl;
+    std::cout << "Р¤Р°Р№Р» " << argv[1] << " acc = " << static_cast<double>(accepted) / static_cast<double>(all) << std::endl;
 
-    file.close(); // Закрываем файл
+    file.close(); // Р—Р°РєСЂС‹РІР°РµРј С„Р°Р№Р»
 
     return 0;
 }
