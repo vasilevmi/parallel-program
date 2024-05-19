@@ -10,9 +10,9 @@ namespace opt = boost::program_options;
 
 
 
-// собственно возвращает значение линейной интерполяции
+// Г±Г®ГЎГ±ГІГўГҐГ­Г­Г® ГўГ®Г§ГўГ°Г Г№Г ГҐГІ Г§Г­Г Г·ГҐГ­ГЁГҐ Г«ГЁГ­ГҐГ©Г­Г®Г© ГЁГ­ГІГҐГ°ГЇГ®Г«ГїГ¶ГЁГЁ
 double linearInterpolation(double x, double x1, double y1, double x2, double y2) {
-    // делаем значение y(щначение клетки)используя формулу линейной интерполяции
+    // Г¤ГҐГ«Г ГҐГ¬ Г§Г­Г Г·ГҐГ­ГЁГҐ y(Г№Г­Г Г·ГҐГ­ГЁГҐ ГЄГ«ГҐГІГЄГЁ)ГЁГ±ГЇГ®Г«ГјГ§ГіГї ГґГ®Г°Г¬ГіГ«Гі Г«ГЁГ­ГҐГ©Г­Г®Г© ГЁГ­ГІГҐГ°ГЇГ®Г«ГїГ¶ГЁГЁ
     return y1 + ((x - x1) * (y2 - y1) / (x2 - x1));
 }
 
@@ -25,7 +25,7 @@ void initMatrix(std::unique_ptr<double[]>& arr, int N) {
     arr[N - 1] = 20.0;
     arr[(N - 1) * N + (N - 1)] = 30.0;
     arr[(N - 1) * N] = 20.0;
-    // инициализируем и потом сразу отправим на девайс
+    // ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°ГіГҐГ¬ ГЁ ГЇГ®ГІГ®Г¬ Г±Г°Г Г§Гі Г®ГІГЇГ°Г ГўГЁГ¬ Г­Г  Г¤ГҐГўГ Г©Г±
     for (size_t i = 1; i < N - 1; i++)
     {
         arr[0 * N + i] = linearInterpolation(i, 0.0, arr[0], N - 1, arr[N - 1]);
@@ -45,10 +45,10 @@ void saveMatrixToFile(const double* matrix, int N, const std::string& filename) 
         return;
     }
 
-    // Устанавливаем ширину вывода для каждого элемента
-    int fieldWidth = 10; // Ширина поля вывода, можно настроить по вашему усмотрению
+    // Г“Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ ГёГЁГ°ГЁГ­Гі ГўГ»ГўГ®Г¤Г  Г¤Г«Гї ГЄГ Г¦Г¤Г®ГЈГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ 
+    int fieldWidth = 10; // ГГЁГ°ГЁГ­Г  ГЇГ®Г«Гї ГўГ»ГўГ®Г¤Г , Г¬Г®Г¦Г­Г® Г­Г Г±ГІГ°Г®ГЁГІГј ГЇГ® ГўГ ГёГҐГ¬Гі ГіГ±Г¬Г®ГІГ°ГҐГ­ГЁГѕ
 
-    // Записываем матрицу в файл с выравниванием столбцов
+    // Г‡Г ГЇГЁГ±Г»ГўГ ГҐГ¬ Г¬Г ГІГ°ГЁГ¶Гі Гў ГґГ Г©Г« Г± ГўГ»Г°Г ГўГ­ГЁГўГ Г­ГЁГҐГ¬ Г±ГІГ®Г«ГЎГ¶Г®Гў
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             outputFile << std::setw(fieldWidth) << std::fixed << std::setprecision(4) << matrix[i * N + j];
@@ -62,13 +62,13 @@ void saveMatrixToFile(const double* matrix, int N, const std::string& filename) 
 
 int main(int argc, char const* argv[])
 {
-    // парсим аргументы
-    opt::options_description desc("опции");
+    // ГЇГ Г°Г±ГЁГ¬ Г Г°ГЈГіГ¬ГҐГ­ГІГ»
+    opt::options_description desc("Г®ГЇГ¶ГЁГЁ");
     desc.add_options()
-        ("accuracy", opt::value<double>()->default_value(1e-6), "точность")
-        ("cellsCount", opt::value<int>()->default_value(256), "размер матрицы")
-        ("iterCount", opt::value<int>()->default_value(1000000), "количество операций")
-        ("help", "помощь")
+        ("accuracy", opt::value<double>()->default_value(1e-6), "ГІГ®Г·Г­Г®Г±ГІГј")
+        ("cellsCount", opt::value<int>()->default_value(256), "Г°Г Г§Г¬ГҐГ° Г¬Г ГІГ°ГЁГ¶Г»")
+        ("iterCount", opt::value<int>()->default_value(1000000), "ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г®ГЇГҐГ°Г Г¶ГЁГ©")
+        ("help", "ГЇГ®Г¬Г®Г№Гј")
         ;
 
     opt::variables_map vm;
@@ -83,7 +83,7 @@ int main(int argc, char const* argv[])
     }
 
 
-    // и это всё было только ради того чтобы спарсить аргументы.......
+    // ГЁ ГЅГІГ® ГўГ±Вё ГЎГ»Г«Г® ГІГ®Г«ГјГЄГ® Г°Г Г¤ГЁ ГІГ®ГЈГ® Г·ГІГ®ГЎГ» Г±ГЇГ Г°Г±ГЁГІГј Г Г°ГЈГіГ¬ГҐГ­ГІГ».......
 
     int N = vm["cellsCount"].as<int>();
     double accuracy = vm["accuracy"].as<double>();
@@ -106,8 +106,8 @@ int main(int argc, char const* argv[])
 #pragma acc data copyin(error,prevmatrix[0:N*N],curmatrix[0:N*N])
     {
         while (iter < countIter && iter<10000000 && error > accuracy) {
-            // провереное эксперементальным путём оптимальное количество банд и размер вектора для расчёта матрицы 1024^2
-#pragma acc parallel loop independent collapse(2) vector vector_length(256) gang num_gangs(1024) present(curmatrix,prevmatrix)
+            // ГЇГ°Г®ГўГҐГ°ГҐГ­Г®ГҐ ГЅГЄГ±ГЇГҐГ°ГҐГ¬ГҐГ­ГІГ Г«ГјГ­Г»Г¬ ГЇГіГІВёГ¬ Г®ГЇГІГЁГ¬Г Г«ГјГ­Г®ГҐ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЎГ Г­Г¤ ГЁ Г°Г Г§Г¬ГҐГ° ГўГҐГЄГІГ®Г°Г  Г¤Г«Гї Г°Г Г±Г·ВёГІГ  Г¬Г ГІГ°ГЁГ¶Г» 1024^2
+#pragma acc parallel loop independent collapse(2) present(curmatrix,prevmatrix)
             for (size_t i = 1; i < N - 1; i++)
             {
 
@@ -123,7 +123,7 @@ int main(int argc, char const* argv[])
             if ((iter + 1) % 10000 == 0) {
                 error = 0.0;
 #pragma acc update device(error)
-#pragma acc parallel loop independent collapse(2) vector vector_length(1024) gang num_gangs(256) reduction(max:error) present(curmatrix,prevmatrix)
+#pragma acc parallel loop independent collapse(2) present(curmatrix,prevmatrix)
                 for (size_t i = 1; i < N - 1; i++)
                 {
                     for (size_t j = 1; j < N - 1; j++)
