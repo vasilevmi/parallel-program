@@ -10,9 +10,7 @@ namespace opt = boost::program_options;
 
 
 
-// ñîáñòâåííî âîçâðàùàåò çíà÷åíèå ëèíåéíîé èíòåðïîëÿöèè
 double linearInterpolation(double x, double x1, double y1, double x2, double y2) {
-    // äåëàåì çíà÷åíèå y(ùíà÷åíèå êëåòêè)èñïîëüçóÿ ôîðìóëó ëèíåéíîé èíòåðïîëÿöèè
     return y1 + ((x - x1) * (y2 - y1) / (x2 - x1));
 }
 
@@ -25,7 +23,7 @@ void initMatrix(std::unique_ptr<double[]>& arr, int N) {
     arr[N - 1] = 20.0;
     arr[(N - 1) * N + (N - 1)] = 30.0;
     arr[(N - 1) * N] = 20.0;
-    // èíèöèàëèçèðóåì è ïîòîì ñðàçó îòïðàâèì íà äåâàéñ
+    
     for (size_t i = 1; i < N - 1; i++)
     {
         arr[0 * N + i] = linearInterpolation(i, 0.0, arr[0], N - 1, arr[N - 1]);
@@ -45,10 +43,9 @@ void saveMatrixToFile(const double* matrix, int N, const std::string& filename) 
         return;
     }
 
-    // Óñòàíàâëèâàåì øèðèíó âûâîäà äëÿ êàæäîãî ýëåìåíòà
-    int fieldWidth = 10; // Øèðèíà ïîëÿ âûâîäà, ìîæíî íàñòðîèòü ïî âàøåìó óñìîòðåíèþ
+    int fieldWidth = 10; 
 
-    // Çàïèñûâàåì ìàòðèöó â ôàéë ñ âûðàâíèâàíèåì ñòîëáöîâ
+
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             outputFile << std::setw(fieldWidth) << std::fixed << std::setprecision(4) << matrix[i * N + j];
@@ -62,13 +59,13 @@ void saveMatrixToFile(const double* matrix, int N, const std::string& filename) 
 
 int main(int argc, char const* argv[])
 {
-    // ïàðñèì àðãóìåíòû
+
     opt::options_description desc("îïöèè");
     desc.add_options()
-        ("accuracy", opt::value<double>()->default_value(1e-6), "òî÷íîñòü")
-        ("cellsCount", opt::value<int>()->default_value(256), "ðàçìåð ìàòðèöû")
-        ("iterCount", opt::value<int>()->default_value(1000000), "êîëè÷åñòâî îïåðàöèé")
-        ("help", "ïîìîùü")
+        ("accuracy", opt::value<double>()->default_value(1e-6), "точность")
+        ("cellsCount", opt::value<int>()->default_value(256), "размер матрицы")
+        ("iterCount", opt::value<int>()->default_value(1000000), "число итераций")
+        ("help", "помощь")
         ;
 
     opt::variables_map vm;
@@ -83,7 +80,6 @@ int main(int argc, char const* argv[])
     }
 
 
-    // è ýòî âñ¸ áûëî òîëüêî ðàäè òîãî ÷òîáû ñïàðñèòü àðãóìåíòû.......
 
     int N = vm["cellsCount"].as<int>();
     double accuracy = vm["accuracy"].as<double>();
@@ -106,7 +102,6 @@ int main(int argc, char const* argv[])
 #pragma acc data copyin(error,prevmatrix[0:N*N],curmatrix[0:N*N])
     {
         while (iter < countIter && iter<10000000 && error > accuracy) {
-            // ïðîâåðåíîå ýêñïåðåìåíòàëüíûì ïóò¸ì îïòèìàëüíîå êîëè÷åñòâî áàíä è ðàçìåð âåêòîðà äëÿ ðàñ÷¸òà ìàòðèöû 1024^2
 #pragma acc parallel loop independent collapse(2) present(curmatrix,prevmatrix)
             for (size_t i = 1; i < N - 1; i++)
             {
