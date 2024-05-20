@@ -5,8 +5,8 @@ CXX = pgc++
 
 all:gpu
 	
-gpu:
-	$(CXX) $(GPU) $(INFO) $(LIBS) -o $@ reliz_2.cpp
+gpu: reliz_3.cpp
+	$(CXX) $(GPU) $(INFO) $(LIBS) -o $@ $<
 
 clean:all
 	rm gpu
