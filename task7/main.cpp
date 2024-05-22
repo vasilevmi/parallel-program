@@ -16,15 +16,15 @@ double linearInterpolation(double x, double x1, double y1, double x2, double y2)
 
 void initMatrix(std::vector<double>& arr, int N) {
     arr[0] = 10.0;
-    arr[N-1] = 20.0;
-    arr[(N-1)*N + (N-1)] = 30.0;
-    arr[(N-1)*N] = 20.0;
+    arr[N - 1] = 20.0;
+    arr[(N - 1) * N + (N - 1)] = 30.0;
+    arr[(N - 1) * N] = 20.0;
 
-    for (size_t i = 1; i < N-1; i++) {
-        arr[0*N+i] = linearInterpolation(i, 0.0, arr[0], N-1, arr[N-1]);
-        arr[i*N+0] = linearInterpolation(i, 0.0, arr[0], N-1, arr[(N-1)*N]);
-        arr[i*N+(N-1)] = linearInterpolation(i, 0.0, arr[N-1], N-1, arr[(N-1)*N + (N-1)]);
-        arr[(N-1)*N+i] = linearInterpolation(i, 0.0, arr[(N-1)*N], N-1, arr[(N-1)*N + (N-1)]);
+    for (size_t i = 1; i < N - 1; i++) {
+        arr[0 * N + i] = linearInterpolation(i, 0.0, arr[0], N - 1, arr[N - 1]);
+        arr[i * N + 0] = linearInterpolation(i, 0.0, arr[0], N - 1, arr[(N - 1) * N]);
+        arr[i * N + (N - 1)] = linearInterpolation(i, 0.0, arr[N - 1], N - 1, arr[(N - 1) * N + (N - 1)]);
+        arr[(N - 1) * N + i] = linearInterpolation(i, 0.0, arr[(N - 1) * N], N - 1, arr[(N - 1) * N + (N - 1)]);
     }
 }
 
@@ -47,14 +47,14 @@ void saveMatrixToFile(const double* matrix, int N, const std::string& filename) 
     outputFile.close();
 }
 
-int main(int argc, char const *argv[]) {
-    opt::options_description desc("�����");
+int main(int argc, char const* argv[]) {
+    opt::options_description desc("опции");
     desc.add_options()
-        ("accuracy",opt::value<double>()->default_value(1e-6),"��������")
-        ("cellsCount",opt::value<int>()->default_value(256),"������ �������")
-        ("iterCount",opt::value<int>()->default_value(1000000),"���������� ��������")
-        ("help","������")
-    ;
+        ("accuracy", opt::value<double>()->default_value(1e-6), "точность")
+        ("cellsCount", opt::value<int>()->default_value(256), "размер матрицы")
+        ("iterCount", opt::value<int>()->default_value(1000000), "число итераций ")
+        ("help", "помощь")
+        ;
 
     opt::variables_map vm;
 
@@ -71,14 +71,14 @@ int main(int argc, char const *argv[]) {
     double accuracy = vm["accuracy"].as<double>();
     int countIter = vm["iterCount"].as<int>();
 
-    cublasStatus_t stat;
-    cublasHandle_t handle;
-    stat = cublasCreate(&handle);
-    if (stat != CUBLAS_STATUS_SUCCESS) {
+    cublasStatus_t stat;//stat для хранения статуса функций
+    cublasHandle_t handle;//указатель на структуру, содержащий информацию о состоянии и параметрах работы библиотеки CUBLAS.
+    stat = cublasCreate(&handle);//инициализации cubla
+    if (stat != CUBLAS_STATUS_SUCCESS) { // Проверяет успешность инициализации
         std::cout << "CUBLAS initialization failed\n";
         std::cout << "NAME: " << cublasGetStatusName(stat) << '\n';
-        std::cout << "DES: " << cublasGetStatusString(stat) << '\n';
-        return 3;
+        std::cout << "DES: " << cublasGetStatusString(stat) << '\n';//описание ошибки
+        return 1;
     }
     else {
         std::cout << "CUBLAS initialization successful\n";
@@ -98,39 +98,39 @@ int main(int argc, char const *argv[]) {
     double* prevmatrix = Anew.data();
 
     double coef = -1.0;
-    int idx=0;
+    int idx = 0;
 
-    #pragma acc data copyin(idx,coef,prevmatrix[0:N*N],curmatrix[0:N*N],N)
+#pragma acc data copyin(idx,coef,prevmatrix[0:N*N],curmatrix[0:N*N],N)
     {
         while (iter < countIter && iter < 10000000 && error > accuracy) {
-            #pragma acc parallel loop independent collapse(2) present(curmatrix,prevmatrix)
-            for (size_t i = 1; i < N-1; i++) {
-                for (size_t j = 1; j < N-1; j++) {
-                    curmatrix[i*N+j]  = 0.25 * (prevmatrix[i*N+j+1] + prevmatrix[i*N+j-1] + prevmatrix[(i-1)*N+j] + prevmatrix[(i+1)*N+j]);
+#pragma acc parallel loop independent collapse(2) present(curmatrix,prevmatrix)
+            for (size_t i = 1; i < N - 1; i++) {
+                for (size_t j = 1; j < N - 1; j++) {
+                    curmatrix[i * N + j] = 0.25 * (prevmatrix[i * N + j + 1] + prevmatrix[i * N + j - 1] + prevmatrix[(i - 1) * N + j] + prevmatrix[(i + 1) * N + j]);
                 }
             }
 
-            if ((iter+1)%1000 == 0){
-                #pragma acc data present(prevmatrix,curmatrix) wait
-                #pragma acc host_data use_device(curmatrix,prevmatrix)
+            if ((iter + 1) % 1000 == 0) {
+#pragma acc data present(prevmatrix,curmatrix) wait
+#pragma acc host_data use_device(curmatrix,prevmatrix)//будет использовать данные, находящиеся в памяти устройства
                 {
-                    stat = cublasDaxpy(handle, N*N, &coef, curmatrix, 1, prevmatrix, 1);
-                    stat = cublasIdamax(handle, N*N, prevmatrix, 1, &idx);
+                    stat = cublasDaxpy(handle, N * N, &coef, curmatrix, 1, prevmatrix, 1);// y : = α⋅xi+ yi α соответствует переменной coef,x соответствует массиву curmatrix,y соответствует массиву prevmatrix.
+                    stat = cublasIdamax(handle, N * N, prevmatrix, 1, &idx);//cодержит  индекс элемента вектора prevmatrix с максимальным значением
                 }
-                #pragma acc update self(prevmatrix[idx])
-                    error = fabs(prevmatrix[idx]);
-                    std::cout << "iteration: "<<iter+1 << ' ' <<"error: "<<error << std::endl;
-                #pragma acc host_data use_device(curmatrix,prevmatrix)
+#pragma acc update self(prevmatrix[idx])
+                error = fabs(prevmatrix[idx]);
+                std::cout << "iteration: " << iter + 1 << ' ' << "error: " << error << std::endl;
+#pragma acc host_data use_device(curmatrix,prevmatrix)
                 {
-                    stat = cublasDcopy(handle,N*N,curmatrix,1,prevmatrix,1);
+                    stat = cublasDcopy(handle, N * N, curmatrix, 1, prevmatrix, 1);// копирует элементы вектора curmatrix в вектор prevmatrix
                 }
-                
+
             }
             std::swap(prevmatrix, curmatrix);
             iter++;
         }
         cublasDestroy(handle);
-        #pragma acc update self(curmatrix[0:N*N])
+#pragma acc update self(curmatrix[0:N*N])
     }
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -148,7 +148,7 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    saveMatrixToFile(A.data(), N , "matrix2.txt");
+    saveMatrixToFile(A.data(), N, "matrix2.txt");
 
     return 0;
 }
