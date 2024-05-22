@@ -55,6 +55,10 @@ int main(int argc, char const* argv[]) {
         ("iterCount", opt::value<int>()->default_value(1000000), "число итераций ")
         ("help", "помощь")
         ;
+    if (vm.count("help")) {
+        std::cout << desc << "\n";
+        return 1;
+    }
 
     opt::variables_map vm;
 
@@ -62,10 +66,6 @@ int main(int argc, char const* argv[]) {
 
     opt::notify(vm);
 
-    if (vm.count("help")) {
-        std::cout << desc << "\n";
-        return 1;
-    }
 
     int N = vm["cellsCount"].as<int>();
     double accuracy = vm["accuracy"].as<double>();
@@ -115,18 +115,17 @@ int main(int argc, char const* argv[]) {
 #pragma acc host_data use_device(curmatrix,prevmatrix)//будет использовать данные, находящиеся в памяти устройства
                 {
                     stat = cublasDaxpy(handle, N * N, &coef, curmatrix, 1, prevmatrix, 1);// y : = α⋅xi+ yi α соответствует переменной coef,x соответствует массиву curmatrix,y соответствует массиву prevmatrix.
-                    stat = cublasIdamax(handle, N * N, prevmatrix, 1, &idx);//cодержит  индекс элемента вектора prevmatrix с максимальным значением
+                    stat = cublasIdamax(handle, N * N, prevmatrix, 1, &idx)-1;//cодержит  индекс элемента вектора prevmatrix с максимальным значением
                 }
 #pragma acc update self(prevmatrix[idx])
                 error = fabs(prevmatrix[idx]);
                 std::cout << "iteration: " << iter + 1 << ' ' << "error: " << error << std::endl;
 #pragma acc host_data use_device(curmatrix,prevmatrix)
                 {
-                    stat = cublasDcopy(handle, N * N, curmatrix, 1, prevmatrix, 1);// копирует элементы вектора curmatrix в вектор prevmatrix
-                }
+                    stat = cublasDcopy(handle, N * N, curmatrix, 1, prevmatrix, 1);// гарантирует, что последующие итерации метода Якоби будут использовать правильные значения, включая краевые значения, которые могут зависеть от значений вокруг них.                }
 
             }
-            std::swap(prevmatrix, curmatrix);
+            std::swap(prevmatrix, curmatrix);//После каждой итерации матрицы обмениваются чтобы подготовиться к следующей итерации.
             iter++;
         }
         cublasDestroy(handle);
