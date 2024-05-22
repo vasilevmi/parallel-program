@@ -1,12 +1,12 @@
 INFO = -Minfo=all
-LIBS = -cudalib=cublas -lboost_program_options
+LIBS = -lboost_program_options -cudalib=cublas
 GPU = -acc=gpu
 CXX = pgc++
 
-all:gpu
-	
-gpu: main.cpp
-	$(CXX) $(GPU) $(INFO) $(LIBS) -o $@ main.cpp 
+all:gpu2
+
+gpu2: main.cpp
+$(CXX) $(GPU) $(INFO) $(LIBS) -o $@ $<
 
 clean:all
-	rm gpu
+rm gpu2
